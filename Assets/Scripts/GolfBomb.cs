@@ -17,6 +17,8 @@ public class GolfBomb : MonoBehaviour
 
     public GameObject explosion;
 
+    public float lineRendererOffset = 1f;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>(); //get the reference to the Rigidbody component
@@ -30,13 +32,13 @@ public class GolfBomb : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && canHit)
+        if (Input.GetMouseButtonDown(0) && canHit)
         { //if the spacebar is pressed
             isCharging = true; //start charging the shot
             direction = GetPlayerDirection(); //get the direction from the player
         }
 
-        if (Input.GetKeyUp(KeyCode.Space) && canHit)
+        if (Input.GetMouseButtonUp(0) && canHit)
         { //if the spacebar is released
             isCharging = false; //stop charging the shot
             HitBall(direction, hitPower); //call the HitBall function with the direction and hit power
@@ -81,6 +83,8 @@ public class GolfBomb : MonoBehaviour
     void DrawLine(Vector3 direction)
     {
         Vector3[] positions = { transform.position, transform.position + (direction * (hitPower / maxHitPower)) * lineScale }; //create an array of two positions, scaled by the current hit power
+        positions[0].y += lineRendererOffset;
+        positions[1].y += lineRendererOffset;
         lineRenderer.positionCount = 2; //set the number of positions to two
         lineRenderer.SetPositions(positions); //set the positions of the LineRenderer
     }
