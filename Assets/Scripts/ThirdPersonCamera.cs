@@ -17,9 +17,15 @@ public class ThirdPersonCamera : MonoBehaviour
     private float mouseX; //the horizontal mouse input
     private float mouseY; //the vertical mouse input
 
+    public bool menuSreen;
+
     private void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
+        if (!menuSreen)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+        
     }
 
     void Update()

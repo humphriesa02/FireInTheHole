@@ -137,7 +137,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   distance: 10
-  height: 2
+  height: 1
   smoothSpeed: 5
   rotationSpeed: 5
   minDistance: 1

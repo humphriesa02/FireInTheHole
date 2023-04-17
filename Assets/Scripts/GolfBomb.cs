@@ -19,6 +19,14 @@ public class GolfBomb : MonoBehaviour
 
     public float lineRendererOffset = 1f;
 
+    public GameObject respawnPoint;
+
+    public AudioSource audioSource;
+
+    public AudioClip explosionSound;
+
+    public AudioClip hitSound;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>(); //get the reference to the Rigidbody component
@@ -28,42 +36,57 @@ public class GolfBomb : MonoBehaviour
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         lineRenderer.material.color = Color.red;
         canHit = true;
+        respawnPoint = GameObject.FindGameObjectWithTag("Re");
+        GameManager.instance.FindBall();
+        if (!GameManager.instance.tutorial)
+        {
+            GameManager.instance.parScript.PrintPar();
+        }
     }
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0) && canHit)
-        { //if the spacebar is pressed
-            isCharging = true; //start charging the shot
-            direction = GetPlayerDirection(); //get the direction from the player
-        }
-
-        if (Input.GetMouseButtonUp(0) && canHit)
-        { //if the spacebar is released
-            isCharging = false; //stop charging the shot
-            HitBall(direction, hitPower); //call the HitBall function with the direction and hit power
-            hitPower = 0.0f; //reset the hit power
-            direction = Vector3.zero;
-        }
-
-        if(Vector3.Distance(rb.velocity, Vector3.zero) < 1 && Vector3.Distance(rb.velocity, Vector3.zero) > 0.5)
+        if (!GameManager.instance.tutorial)
         {
-            canHit = false;
-        }
-        else if(Vector3.Distance(rb.velocity, Vector3.zero) < 0.5)
-        {
-            GameManager.instance.DecrementClock();
-            rb.velocity = Vector3.Lerp(rb.velocity, Vector3.zero, 0.015f);
-            canHit = true;
-        }
+            if (Input.GetMouseButtonDown(0) && canHit)
+            { //if the spacebar is pressed
+                isCharging = true; //start charging the shot
+                direction = GetPlayerDirection(); //get the direction from the player
+            }
+
+            if (Input.GetMouseButtonUp(0) && canHit)
+            { //if the spacebar is released
+                audioSource.PlayOneShot(hitSound);
+                isCharging = false; //stop charging the shot
+                HitBall(direction, hitPower); //call the HitBall function with the direction and hit power
+                hitPower = 0.0f; //reset the hit power
+                direction = Vector3.zero;
+            }
+
+            if (Vector3.Distance(rb.velocity, Vector3.zero) > 0.5)
+            {
+                canHit = false;
+            }
+            else if (Vector3.Distance(rb.velocity, Vector3.zero) < 0.5)
+            {
+                GameManager.instance.DecrementClock();
+                rb.velocity = Vector3.zero;
+                canHit = true;
+            }
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                BlowUp();
+            }
 
 
-        if (isCharging)
-        { //if the player is charging the shot
-            hitPower = Mathf.Min(hitPower + Time.deltaTime * maxHitPower, maxHitPower); //increase the hit power up to the maximum
-        }
+            if (isCharging)
+            { //if the player is charging the shot
+                hitPower = Mathf.Min(hitPower + Time.deltaTime * maxHitPower, maxHitPower); //increase the hit power up to the maximum
+            }
 
-        DrawLine(direction);
+            DrawLine(direction);
+        } 
     }
 
     void HitBall(Vector3 direction, float power)
@@ -91,7 +114,9 @@ public class GolfBomb : MonoBehaviour
 
     public void BlowUp()
     {
+        audioSource.PlayOneShot(explosionSound);
         Instantiate(explosion, transform.position, Quaternion.identity);
-        Destroy(gameObject);
+        //gameObject.SetActive(false);
+        GameManager.instance.LoseLife();
     }
 }
